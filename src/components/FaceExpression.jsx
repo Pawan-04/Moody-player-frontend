@@ -38,7 +38,8 @@ const FaceExpression = ({setSongs}) => {
 
           console.log(_expression)
           /*get http:// localhost:3000/api/songs?mood=happy*/
-          axios.get(`http://localhost:3000/api/songs?mood=${_expression}`)
+          // axios.get(`http://localhost:3000/api/songs?mood=${_expression}`)
+          axios.get(`${ProcessingInstruction.env.REACT_APP_API_URL}/api/songs?mood=${_expression}`)
           .then(response=>{
             console.log(response.data)
           setSongs(response.data.songs)})
