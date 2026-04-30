@@ -36,13 +36,18 @@ const FaceExpression = ({setSongs}) => {
           }
           setAllExpressions(expressions);
 
-          console.log(_expression)
-          /*get http:// localhost:3000/api/songs?mood=happy*/
-          // axios.get(`http://localhost:3000/api/songs?mood=${_expression}`)
-          axios.get(`${import.meta.env.VITE_API_URL}/api/songs?mood=${_expression}`)
-          .then(response=>{
-            console.log(response.data)
-          setSongs(response.data.songs)})
+          console.log("Detecting mood:", _expression);
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+          
+          axios.get(`${apiUrl}/api/songs?mood=${_expression}`)
+            .then(response => {
+              console.log("Songs fetched:", response.data);
+              setSongs(response.data.songs || []);
+            })
+            .catch(error => {
+              console.error("Error fetching songs:", error);
+              setSongs([]);
+            });
 
           
 
@@ -81,24 +86,39 @@ const FaceExpression = ({setSongs}) => {
     <div className="face-expression-main">
       <h2>Facial Mood Detector</h2>
 
-      <video className ="face-video"
-        ref={videoRef}
-        autoPlay
-        muted
-        width="400"
-        style={{ borderRadius: "10px" }}
-      />
+      <div className="video-container">
+        <video className="face-video"
+          ref={videoRef}
+          autoPlay
+          muted
+        />
+      </div>
 
-      <h3>Mood: {mood}</h3>
-      <div>
-  <h4>Expression Scores:</h4>
-  {Object.entries(allExpressions).map(([key, value]) => (
-    <div key={key}>
-      {key}: {(value * 100).toFixed(2)}%
-    </div>
-  ))}
-</div>
-      <button onClick={detectMood}>Detect Mood</button>
+      <div className="mood-badge-container">
+        <h3>Current Mood:</h3>
+        <div className="mood-badge">{mood}</div>
+      </div>
+      
+      <div className="expressions-container">
+        <h4>Expression Scores</h4>
+        {Object.entries(allExpressions).map(([key, value]) => (
+          <div key={key} className="expression-item">
+            <span className="expression-label">{key}</span>
+            <div className="expression-bar-bg">
+              <div 
+                className="expression-bar-fill" 
+                style={{ width: `${(value * 100).toFixed(2)}%` }}
+              ></div>
+            </div>
+            <span className="expression-value">{(value * 100).toFixed(1)}%</span>
+          </div>
+        ))}
+      </div>
+      
+      <button className="detect-btn" onClick={detectMood}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+        Detect Mood
+      </button>
     </div>
   );
 };
